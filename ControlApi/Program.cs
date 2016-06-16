@@ -15,10 +15,12 @@ namespace ControlApi
 {
     enum Commands
     {
-        MouseMove = 0,
-        Zoom = 1,
-        CtrMouse = 2,
-        ShiftMosue = 3
+        MouseMove = 0,//commad,deltax,delatay
+        CtrScroll = 1,//commad,rotatecount
+        CtrMouseMouse = 2,//commad,deltax,delatay
+        ShiftMosue = 3,//commad,deltax,delatay
+        Scroll = 4,//commad,rotatecount
+        Numpad = 5//command,padnumber
     }
     class Program
     {
@@ -110,7 +112,6 @@ namespace ControlApi
                 var line = reader.ReadLine();
                 if (line == null)
                     break;
-                Console.WriteLine(line);
                 try
                 {
                     var param = line.Split(',').Select(n => n.Trim()).ToArray();
@@ -120,24 +121,33 @@ namespace ControlApi
                         case Commands.MouseMove:
                             MouseMove(param, inputSimulator);
                             break;
-                        case Commands.Zoom:
+                        case Commands.CtrScroll:
                             inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
                             inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
                             inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
                             break;
-                        case Commands.CtrMouse:
+                        case Commands.CtrMouseMouse:
                             MouseMoveModify(param, inputSimulator, VirtualKeyCode.CONTROL);
                             break;
                         case Commands.ShiftMosue:
                             MouseMoveModify(param, inputSimulator, VirtualKeyCode.SHIFT);
                             break;
+                        case Commands.Scroll:
+                            inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
+                            break;
+                        case Commands.Numpad:
+                            var pad = int.Parse(param[1]);
+                            var x = (VirtualKeyCode) (pad + (int) VirtualKeyCode.NUMPAD0);
+                            inputSimulator.Keyboard.KeyPress(x);
+                            break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                    Console.WriteLine("command:" + line);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.Message + ":" + line);
                 }
             }
         }
