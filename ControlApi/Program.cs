@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
@@ -20,7 +19,11 @@ namespace ControlApi
         CtrMouseMouse = 2,//commad,deltax,delatay
         ShiftMosue = 3,//commad,deltax,delatay
         Scroll = 4,//commad,rotatecount
-        Numpad = 5//command,padnumber
+        NumpadPress = 5,//command,padnumber
+        NumpadDown = 6,//command,padnumber
+        NumpadUp = 7,//command,padnumber
+        MiddleDown = 8,//command
+        MiddleUp = 9//command
     }
     class Program
     {
@@ -121,6 +124,7 @@ namespace ControlApi
                         case Commands.MouseMove:
                             MouseMove(param, inputSimulator);
                             break;
+                            
                         case Commands.CtrScroll:
                             inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
                             inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
@@ -135,10 +139,32 @@ namespace ControlApi
                         case Commands.Scroll:
                             inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
                             break;
-                        case Commands.Numpad:
-                            var pad = int.Parse(param[1]);
-                            var x = (VirtualKeyCode) (pad + (int) VirtualKeyCode.NUMPAD0);
-                            inputSimulator.Keyboard.KeyPress(x);
+                        case Commands.NumpadPress:
+                            {
+                                var pad = int.Parse(param[1]);
+                                var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
+                                inputSimulator.Keyboard.KeyPress(x);
+                            }
+                            break;
+                        case Commands.NumpadDown:
+                            {
+                                var pad = int.Parse(param[1]);
+                                var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
+                                inputSimulator.Keyboard.KeyDown(x);
+                            }
+                            break;
+                        case Commands.NumpadUp:
+                            {
+                                var pad = int.Parse(param[1]);
+                                var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
+                                inputSimulator.Keyboard.KeyUp(x);
+                            }
+                            break;
+                        case Commands.MiddleDown:
+                            inputSimulator.Mouse.MiddleButtonDown();
+                            break;
+                        case Commands.MiddleUp:
+                            inputSimulator.Mouse.MiddleButtonUp();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -151,7 +177,6 @@ namespace ControlApi
                 }
             }
         }
-
         private static void MouseMoveModify(string[] param, InputSimulator inputSimulator, VirtualKeyCode key)
         {
             var deltaX = int.Parse(param[1]);
