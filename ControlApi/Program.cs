@@ -23,7 +23,9 @@ namespace ControlApi
         NumpadDown = 6,//command,padnumber
         NumpadUp = 7,//command,padnumber
         MiddleDown = 8,//command
-        MiddleUp = 9//command
+        MiddleUp = 9,//command
+        CtrDown = 10,//command
+        CtrUp = 11//command
     }
     class Program
     {
@@ -165,6 +167,12 @@ namespace ControlApi
                             break;
                         case Commands.MiddleUp:
                             inputSimulator.Mouse.MiddleButtonUp();
+                            break;
+                        case Commands.CtrDown:
+                            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+                            break;
+                        case Commands.CtrUp:
+                            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.UP);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
