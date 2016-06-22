@@ -173,7 +173,7 @@ namespace ControlApi
                             inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
                             break;
                         case Commands.CtrUp:
-                            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.UP);
+                            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
