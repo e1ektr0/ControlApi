@@ -27,6 +27,7 @@ namespace ControlApi
         CtrDown = 10,//command
         CtrUp = 11//command
     }
+
     class Program
     {
         static void Main(string[] args)
@@ -172,7 +173,7 @@ namespace ControlApi
                             inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
                             break;
                         case Commands.CtrUp:
-                            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.UP);
+                            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.UP);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
