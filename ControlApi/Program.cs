@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
@@ -12,7 +13,7 @@ using LibUsbDotNet.Main;
 
 namespace ControlApi
 {
-    enum Commands
+    public enum Commands
     {
         MouseMove = 0,//commad,deltax,delatay
         CtrScroll = 1,//commad,rotatecount
@@ -32,6 +33,19 @@ namespace ControlApi
     {
         static void Main(string[] args)
         {
+            var inputSimulator = new InputSimulator();
+            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+            //Thread.Sleep(1000);
+            //inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+            //inputSimulator.Mouse.MiddleButtonDown();
+            //Thread.Sleep(1000);
+            //inputSimulator.Mouse.MoveMouseTo(100, 0);
+            //inputSimulator.Mouse.MoveMouseTo(100, 0);
+            //inputSimulator.Mouse.MoveMouseTo(100, 0);
+            //inputSimulator.Mouse.MoveMouseTo(100, 0);
+            //Thread.Sleep(1000);
+            //inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+            //inputSimulator.Mouse.MiddleButtonUp();
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en");
             var allDevices = UsbDevice.AllDevices;
             foreach (UsbRegistry usbRegistry in allDevices)
@@ -113,77 +127,90 @@ namespace ControlApi
         {
             var inputSimulator = new InputSimulator();
             var reader = new StreamReader(clientStream);
-            while (!reader.EndOfStream)
+            try
             {
-                var line = reader.ReadLine();
-                if (line == null)
-                    break;
-                try
+
+                while (!reader.EndOfStream)
                 {
-                    var param = line.Split(',').Select(n => n.Trim()).ToArray();
-                    var commandId = (Commands)int.Parse(param[0]);
-                    switch (commandId)
+                    var line = reader.ReadLine();
+                    if (line == null)
+                        break;
+                    try
                     {
-                        case Commands.MouseMove:
-                            MouseMove(param, inputSimulator);
-                            break;
-                            
-                        case Commands.CtrScroll:
-                            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
-                            inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
-                            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
-                            break;
-                        case Commands.CtrMouseMouse:
-                            MouseMoveModify(param, inputSimulator, VirtualKeyCode.CONTROL);
-                            break;
-                        case Commands.ShiftMosue:
-                            MouseMoveModify(param, inputSimulator, VirtualKeyCode.SHIFT);
-                            break;
-                        case Commands.Scroll:
-                            inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
-                            break;
-                        case Commands.NumpadPress:
-                            {
-                                var pad = int.Parse(param[1]);
-                                var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
-                                inputSimulator.Keyboard.KeyPress(x);
-                            }
-                            break;
-                        case Commands.NumpadDown:
-                            {
-                                var pad = int.Parse(param[1]);
-                                var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
-                                inputSimulator.Keyboard.KeyDown(x);
-                            }
-                            break;
-                        case Commands.NumpadUp:
-                            {
-                                var pad = int.Parse(param[1]);
-                                var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
-                                inputSimulator.Keyboard.KeyUp(x);
-                            }
-                            break;
-                        case Commands.MiddleDown:
-                            inputSimulator.Mouse.MiddleButtonDown();
-                            break;
-                        case Commands.MiddleUp:
-                            inputSimulator.Mouse.MiddleButtonUp();
-                            break;
-                        case Commands.CtrDown:
-                            inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
-                            break;
-                        case Commands.CtrUp:
-                            inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        var param = line.Split(',').Select(n => n.Trim()).ToArray();
+                        var commandId = (Commands)int.Parse(param[0]);
+                        switch (commandId)
+                        {
+                            case Commands.MouseMove:
+                                MouseMove(param, inputSimulator);
+                                break;
+
+                            case Commands.CtrScroll:
+                                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+                                inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
+                                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+                                break;
+                            case Commands.CtrMouseMouse:
+                                MouseMoveModify(param, inputSimulator, VirtualKeyCode.CONTROL);
+                                break;
+                            case Commands.ShiftMosue:
+                                MouseMoveModify(param, inputSimulator, VirtualKeyCode.SHIFT);
+                                break;
+                            case Commands.Scroll:
+                                inputSimulator.Mouse.VerticalScroll(int.Parse(param[1]));
+                                break;
+                            case Commands.NumpadPress:
+                                {
+                                    var pad = int.Parse(param[1]);
+                                    var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
+                                    inputSimulator.Keyboard.KeyPress(x);
+                                }
+                                break;
+                            case Commands.NumpadDown:
+                                {
+                                    var pad = int.Parse(param[1]);
+                                    var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
+                                    inputSimulator.Keyboard.KeyDown(x);
+                                }
+                                break;
+                            case Commands.NumpadUp:
+                                {
+                                    var pad = int.Parse(param[1]);
+                                    var x = (VirtualKeyCode)(pad + (int)VirtualKeyCode.NUMPAD0);
+                                    inputSimulator.Keyboard.KeyUp(x);
+                                }
+                                break;
+                            case Commands.MiddleDown:
+                                Console.WriteLine("MiddleDown down");
+                                inputSimulator.Mouse.MiddleButtonDown();
+                                break;
+                            case Commands.MiddleUp:
+                                inputSimulator.Mouse.MiddleButtonUp();
+                                break;
+                            case Commands.CtrDown:
+                                inputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+                                inputSimulator.Mouse.MiddleButtonDown();
+                                Console.WriteLine("ctr down");
+                                break;
+                            case Commands.CtrUp:
+                                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                        Console.WriteLine("command:" + line);
                     }
-                    Console.WriteLine("command:" + line);
+                    catch (Exception ex)
+                    {
+                        new InputSimulator().Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+                        Console.WriteLine(ex.Message + ":" + line);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message + ":" + line);
-                }
+            }
+            catch (Exception)
+            {
+                inputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+                inputSimulator.Mouse.MiddleButtonUp();
             }
         }
         private static void MouseMoveModify(string[] param, InputSimulator inputSimulator, VirtualKeyCode key)
